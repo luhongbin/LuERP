@@ -1,0 +1,154 @@
+<!-- sales/templates/admin/sale_summary_change_list.html -->
+{% extends "admin/change_list.html" %}
+{#{% load  admin_list  %}#}
+{% load humanize %}
+{% load i18n admin_static %}
+{% block content_title %}
+    <h1> 对账单品号汇总 </h1>
+{% endblock %}
+
+{% block result_list %}
+
+<div class="results">
+    <table>
+
+    <thead>
+      <tr>
+        <th>
+          <div class="text">
+            <a href="#">货物劳务名称</a>
+          </div>
+        </th>
+        <th>
+          <div class="text">
+            <a href="#">规格型号</a>
+          </div>
+        </th>
+        <th>
+          <div class="text">
+            <a href="#">单位</a>
+          </div>
+        </th><th>
+          <div class="text">
+            <a href="#">笔数</a>
+          </div>
+        </th>
+          <th>
+          <div class="text">
+            <a href="#">数量</a>
+          </div>
+        </th>
+        <th>
+          <div class="text">
+            <a href="#">金额</a>
+          </div>
+        </th>
+        <th>
+          <div class="text">
+            <a href="#">税额</a>
+          </div>
+        </th>
+        <th>
+          <div class="text">
+            <a href="#">合计</a>
+          </div>
+        </th>
+        <th>
+          <div class="text">
+            <a href="#"><strong>百分比</strong></a>
+          </div>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in summary %}
+      <tr class="{% cycle 'row1' 'row2' %}">
+        <td> {{ row.lwmc }} </td>
+        <td> {{ row.ggxh }} </td>
+        <td> {{ row.dw }} </td>
+        <td> {{ row.total | default:0 | intcomma }} </td>
+        <td> {{ row.total_sl | default:0 | intcomma }} </td>
+        <td> {{ row.total_cash | default:0 | intcomma }} </td>
+        <td> {{ row.total_tax | default:0 | intcomma }} </td>
+        <td> {{ row.total_totalcash | default:0 | intcomma }} </td>
+        <td>
+          <strong>
+          {{ row.total_per |  default:0  }}%
+          </strong>
+        </td>
+      </tr>
+      {% endfor %}
+      <tr style="font-weight:bold; border-top:2px solid #DDDDDD;">
+            <td> 合计： {{ summary_count | intcomma }}条 </td>
+            <td>  </td>
+            <td>  </td>
+            <td> {{ summary_total.total | intcomma }}笔 </td>
+            <td> {{ summary_total.total_sl | intcomma }} </td>
+            <td> {{ summary_total.total_cash | default:0 | intcomma}} </td>
+            <td> {{ summary_total.total_tax | default:0 | intcomma}} </td>
+            <td> {{ summary_total.total_totalcash | default:0 | intcomma}} </td>
+            <td> <strong>100%</strong> </td>
+      </tr>
+    </tbody>
+  </table>
+<h2> 进货时间按({{ periodid }})显示</h2>
+
+    <style>
+    .bar-chart {
+      display: flex;
+      justify-content: space-around;
+      height: 160px;
+      padding-top: 60px;
+      overflow: hidden;
+    }
+    .bar-chart .bar {
+        flex: 100%;
+        align-self: flex-end;
+        margin-right: 2px;
+        position: relative;
+        background-color: #79aec8;
+    }
+    .bar-chart .bar:last-child {
+        margin: 0;
+    }
+    .bar-chart .bar:hover {
+        background-color: #417690;
+    }
+
+    .bar-chart .bar .bar-tooltip {
+        position: relative;
+        z-index: 999;
+    }
+    .bar-chart .bar .bar-tooltip {
+        position: absolute;
+        top: -60px;
+        left: 50%;
+        transform: translateX(-50%);
+        text-align: center;
+        font-weight: bold;
+        opacity: 0;
+    }
+    .bar-chart .bar:hover .bar-tooltip {
+        opacity: 1;
+    }
+    </style>
+
+    <div class="results">
+        <div class="bar-chart">
+        {% for x in summary_over_time %}
+            <div class="bar" style="height:{{x.pct}}%">
+                <div class="bar-tooltip">
+                    {{x.total | default:0 | intcomma }}<br>
+                    {{x.period }}{{ periodid }}
+                </div>
+            </div>
+        {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- ... -->
+
+{% endblock %}
+
+{% block pagination %}{% endblock %}

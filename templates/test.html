@@ -1,0 +1,33 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_static %}
+
+{% block extrastyle %}{{ block.super }}
+<link rel="stylesheet" type="text/css" href="{% static "admin/css/dashboard.css" %}" />
+{% endblock %}
+
+{% block coltype %}colMS{% endblock %}
+
+{% block bodyclass %}{{ block.super }} dashboard{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+{% for app in maxi_app_list %}
+
+| <a href="{{ app.app_url }}">{{ app.name }}</a>
+
+{% endfor %}
+</div>
+
+<head>
+    <title>MyBlog</title>
+</head>
+<body>
+<h1>MyBlog</h1>
+<p>博客列表</p>
+{% for name in Order %}
+    <p>{{name.0}}   :   {{name.1}}:   {{name.2}}:   {{name.3}}:   {{name.4}}:   {{name.5}}:   {{name.6}}</p>
+{% endfor %}
+<br>
+</body>
+{% endblock %}

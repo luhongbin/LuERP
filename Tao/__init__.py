@@ -1,0 +1,1 @@
+default_app_config = 'Tao.apps.appConfig'  #替换IdcManager为自己的应用名称

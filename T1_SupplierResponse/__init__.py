@@ -1,0 +1,1 @@
+default_app_config = 'T1_SupplierResponse.apps.appConfig'  #替换IdcManager为自己的应用名称

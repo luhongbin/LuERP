@@ -1,0 +1,46 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls %}
+
+{% block bodyclass %}{{ block.super }} app-{{ opts.app_label }} model-{{ opts.model_name }} delete-confirmation{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">首页</a>
+&rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+&rsaquo; <a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst|escape }}</a>
+&rsaquo; <a href="{% url opts|admin_urlname:'change' object.pk|admin_urlquote %}">{{ object|truncatewords:"18" }}</a>
+&rsaquo; 提交
+</div>
+{% endblock %}
+
+{% block content %}
+{% if has_workflow %}
+    <p>{% blocktrans with escaped_object=object %}确认提交{{ object_name }} "{{ escaped_object }}"? {% endblocktrans %}</p>
+    <h3> {{ workflow_modal.code }} {{ workflow_modal.name }} </h3>
+
+    <form action="" method="post">{% csrf_token %}
+        {% if next_node %}
+        <p class="next-node"> "下一节点"：{{ next_node.name }}</p>
+            {% if has_next_user %}
+                <ul class="node-users">
+                {% for user in next_users %}
+                    <li><input type="checkbox" name="{{checkbox_name}}" value="{{user.id}}" checked> {{user.last_name}}{{user.first_name}}</li>
+                {% endfor %}
+                    </ul>
+            {% else %}
+                <p> 本节点未配置处理人，请联系管理员配置处理人</p>
+            {% endif %}
+        {% endif %}
+    <div>
+    <input type="hidden" name="post" value="yes" />
+    {% if is_popup %}<input type="hidden" name="{{ is_popup_var }}" value="1" />{% endif %}
+    {% if to_field %}<input type="hidden" name="{{ to_field_var }}" value="{{ to_field }}" />{% endif %}
+    <input type="submit" value="确认" />
+    <a href="#" onclick="window.history.back(); return false;" class="button cancel-link">不，返回</a>
+    </div>
+    </form>
+{% else %}
+    <p>请在工作流/工作流模型中配置本业务的流程模型</p>
+    <a href="#" onclick="window.history.back(); return false;" class="button cancel-link">OK</a>
+{% endif %}
+{% endblock %}

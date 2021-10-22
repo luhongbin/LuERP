@@ -1,0 +1,67 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls %}
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="/static/css/maximus.css" />{% endblock %}
+{% block bodyclass %}{{ block.super }} app-{{ opts.app_label }} model-{{ opts.model_name }} delete-confirmation{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">主页</a>
+&rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+&rsaquo; <a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst|escape }}</a>
+&rsaquo; <a href="{% url opts|admin_urlname:'change' object.pk|admin_urlquote %}">{{ object|truncatewords:"18" }}</a>
+&rsaquo; 工作流审批
+</div>
+{% endblock %}
+
+{% block content %}
+{% if operation == '4' %}
+<p>您确定要终止申请吗？</p>
+{% elif operation == '3' %}
+<p>您确定要拒绝申请吗？</p>
+{% else %}
+<p>{% blocktrans with escaped_object=object %}确认提交 {{ object_name }} "{{ escaped_object }}"? {% endblocktrans %}</p>
+{% endif%}
+    <h3> {{ workflow_modal.code }} {{ workflow_modal.name }} </h3>
+
+    <form action="" method="post">{% csrf_token %}
+        {% if is_stop_node %}
+            <p>当前为流程最后一个环节，点击【已确认】完成流程</p>
+        {% else %}
+            {% for node_user in node_users %}
+                {% if node_user.node == 'start'%}
+                <p class="next-node">返回到初始环节</p>
+                {%else%}
+                <p class="next-node">下个环节：{{ node_user.node.name }}</p>
+                {% endif%}
+                {% if next_node_description %}
+                <p class="tooltip">注意：{{next_node_description}}</p>
+                {% endif %}
+                {% if node_has_users %}
+                <ul class="node-users">
+                    {% for user in node_user.users %}
+                        <li><input type="checkbox" name="{{checkbox_name}}" value="{{user.id}}" checked> {{user.last_name}}{{user.first_name}}</li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                    <p>本节点未配置处理人，请联系管理员配置处理人</p>
+                {% endif %}
+            {% endfor%}
+        {% endif%}
+        {% if is_stop_node or node_has_users%}
+            <label style="display:block">审批意见：</label>
+            <textarea name="memo" rows="3" cols="80"></textarea>
+            <div class="workflow_approve_command">
+            <input type="hidden" name="post" value="yes" />
+            <input type="hidden" name="oper_type" value="{{operation}}" />
+            {% if is_popup %}<input type="hidden" name="{{ is_popup_var }}" value="1" />{% endif %}
+            {% if to_field %}<input type="hidden" name="{{ to_field_var }}" value="{{ to_field }}" />{% endif %}
+            <input type="submit" value="已确认" />
+            <a href="#" onclick="window.history.back(); return false;" class="button cancel-link">不，返回</a>
+        </div>
+        {% else %}
+            {% if is_popup %}<input type="hidden" name="{{ is_popup_var }}" value="1" />{% endif %}
+            {% if to_field %}<input type="hidden" name="{{ to_field_var }}" value="{{ to_field }}" />{% endif %}
+            <a href="#" onclick="window.history.back(); return false;" class="button cancel-link">不，返回</a>
+        {% endif %}
+    </form>
+{% endblock %}

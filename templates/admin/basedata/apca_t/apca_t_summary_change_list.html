@@ -1,0 +1,66 @@
+{% extends "admin/change_list.html" %}
+
+{% block content_title %}
+    <h1> Sales Summary </h1>
+{% endblock %}
+
+{% block result_list %}
+{% load humanize %}
+
+<!-- ... -->
+
+<div class="results">
+    <table>
+
+    <thead>
+      <tr>
+        <th>
+          <div class="text">
+            <a href="#">paybill</a>
+          </div>
+        </th>
+        <th>
+          <div class="text">
+            <a href="#">fprq</a>
+          </div>
+        </th>
+        <th>
+          <div class="text">
+            <a href="#">cash</a>
+          </div>
+        </th>
+        <th>
+          <div class="text">
+            <a href="#">
+              <strong>paydate</strong>
+            </a>
+          </div>
+        </th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {% for row in summary %}
+      <tr class="{% cycle 'row1' 'row2' %}">
+        <td> {{ row.paybill }} </td>
+        <td> {{ row.fprq }} </td>
+        <td> {{ row.cash }}$ </td>
+        <td>
+          <strong>
+          {{ row.total_sales |
+              default:0 |
+              percentof:summary_total.total_sales }}
+          </strong>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+
+  </table>
+</div>
+
+
+
+{% endblock %}
+
+{% block pagination %}{% endblock %}
